@@ -80,19 +80,13 @@ namespace HTMLParser
                 {
                     switch (feedReader.ElementType)
                     {
-                        // Read category
-                        case SyndicationElementType.Category:
-                            ISyndicationCategory category = await feedReader.ReadCategory();
-                            break;
-
-                        // Read Image
-                        case SyndicationElementType.Image:
-                            ISyndicationImage image = await feedReader.ReadImage();
-                            break;
+                        
+                     
 
                         // Read Item
                         case SyndicationElementType.Item:
                             ISyndicationItem item = await feedReader.ReadItem();
+                          
                             if(item.Id !=null)
                             {
                                 links.Add(item.Id);
@@ -101,21 +95,6 @@ namespace HTMLParser
                                 
                             break;
 
-                        // Read link
-                        case SyndicationElementType.Link:
-                            ISyndicationLink link = await feedReader.ReadLink();
-                    
-                            break;
-
-                        // Read Person
-                        case SyndicationElementType.Person:
-                            ISyndicationPerson person = await feedReader.ReadPerson();
-                            break;
-
-                        // Read content
-                        default:
-                            ISyndicationContent content = await feedReader.ReadContent();
-                            break;
                     }
                 }
 
