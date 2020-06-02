@@ -19,7 +19,7 @@ namespace HTMLParser
         {
                  
             // Get list of urls from an RSS feed.
-            var listOfUrls = await ReadRssFeedAsync();
+            List<string> listOfLinks = await ReadRssFeedAsync();
             
 
             HttpClient client = new HttpClient();
@@ -36,7 +36,7 @@ namespace HTMLParser
 
 
             // WIP.
-            foreach (var link in listOfUrls)
+            foreach (var link in listOfLinks)
             {
                 var temp = link;
             }
@@ -69,7 +69,7 @@ namespace HTMLParser
 
         public static async Task<List<string>> ReadRssFeedAsync()
         {
-            var links = new List<string>();
+            List<string> links = new List<string>();
 
             string url = "https://owain.codes/blog/rss/";
             using (var xmlReader = XmlReader.Create(url, new XmlReaderSettings() { Async = true }))
