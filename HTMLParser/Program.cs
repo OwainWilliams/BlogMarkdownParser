@@ -1,6 +1,5 @@
-﻿using HtmlAgilityPack;
-using Microsoft.SyndicationFeed;
-using Microsoft.SyndicationFeed.Rss;
+﻿using CodeHollow.FeedReader;
+using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,7 +18,7 @@ namespace HTMLParser
         {
                  
             // Get list of urls from an RSS feed.
-            List<string> listOfLinks = await ReadRssFeedAsync();
+            List<string> listOfLinks =  ReadRssFeedAsync();
             
 
             HttpClient client = new HttpClient();
@@ -67,50 +66,22 @@ namespace HTMLParser
             //
         }
 
-        public static async Task<List<string>> ReadRssFeedAsync()
+        public static List<string> ReadRssFeedAsync()
         {
             List<string> links = new List<string>();
 
-            string url = "https://owain.codes/blog/rss/";
-            using (var xmlReader = XmlReader.Create(url, new XmlReaderSettings() { Async = true }))
+            var feedUrl = "https://owain.codes/blog/rss/";
+           
+
+            var readerTask = FeedReader.ReadAsync(feedUrl);
+           
+
+            foreach (var item in readerTask.Result.Items)
             {
-                var feedReader = new RssFeedReader(xmlReader);
-             
-                try
-                {
-                    while (await feedReader.Read())
-                    {
-                        switch (feedReader.ElementType)
-                        {
-
-
-
-                            // Read Item
-                            case SyndicationElementType.Item:
-                                ISyndicationItem item = await feedReader.ReadItem();
-
-                                if (item != null)
-                                {
-                                    links.Add(item.Id);
-                                }
-
-
-                                break;
-
-                        }
-                    }
-
-                }
-                catch(ArgumentOutOfRangeException outOfRange)
-                {
-                    Console.WriteLine("Error: {0}", outOfRange.Message);
-                    Console.ReadLine();
-                }
-                
-              
-
-               
+                Console.WriteLine(item.Title + " - " + item.Link);
             }
+
+
 
             return links;
         }

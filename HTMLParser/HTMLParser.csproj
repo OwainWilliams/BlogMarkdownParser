@@ -33,11 +33,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CodeHollow.FeedReader, Version=1.2.1.0, Culture=neutral, PublicKeyToken=66d870f2b3d70f48, processorArchitecture=MSIL">
+      <HintPath>..\packages\CodeHollow.FeedReader.1.2.1\lib\net452\CodeHollow.FeedReader.dll</HintPath>
+    </Reference>
     <Reference Include="HtmlAgilityPack, Version=1.11.24.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
       <HintPath>..\packages\HtmlAgilityPack.1.11.24\lib\Net45\HtmlAgilityPack.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.SyndicationFeed.ReaderWriter, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.SyndicationFeed.ReaderWriter.1.0.2\lib\netstandard1.3\Microsoft.SyndicationFeed.ReaderWriter.dll</HintPath>
     </Reference>
     <Reference Include="ReverseMarkdown, Version=3.11.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ReverseMarkdown.3.11.0\lib\net46\ReverseMarkdown.dll</HintPath>
