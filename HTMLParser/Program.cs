@@ -2,6 +2,7 @@
 using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.ServiceModel.Syndication;
@@ -33,18 +34,15 @@ namespace HTMLParser
                 SmartHrefHandling = true // remove markdown output for links where appropriate
             };
 
-
+            int id = 0;
             // WIP.
             foreach (var link in listOfLinks)
             {
-                var temp = link;
-            }
 
-
-
+                id++;
             // GetAsync will be the Link returned from the RSS feed.
             var converter = new ReverseMarkdown.Converter(config);
-            var response = await client.GetAsync("https://owain.codes/blog/posts/2020/march/umbraco-mvp-heather-floyd/");
+            var response = await client.GetAsync(link);
             var pageContents = await response.Content.ReadAsStringAsync();
 
 
@@ -59,8 +57,13 @@ namespace HTMLParser
 
             //Instead of outputting to the console. Save as Markdown file. 
             Console.WriteLine(blogPostMarkdown);
-            Console.ReadLine();
 
+                
+
+            CreateMarkDownFile(blogPostMarkdown, id);
+
+
+            }
             // TODO:
             // Once all files are saved, git push them to a private repo. 
             //
@@ -78,12 +81,28 @@ namespace HTMLParser
 
             foreach (var item in readerTask.Result.Items)
             {
-                Console.WriteLine(item.Title + " - " + item.Link);
+                Console.WriteLine(item.Link);
+                var cleanedUpLink = item.Link.Trim().Replace(@"\t|\n|\r", "");
+
+                links.Add(cleanedUpLink);
             }
 
 
 
             return links;
+        }
+
+
+        public static void CreateMarkDownFile(string blog, int blogNumber)
+        {
+            string path = @"c:\temp\markdown\blog"+blogNumber+".md";
+            if(!File.Exists(path))
+            {
+                File.AppendAllText(path, blog);
+                Console.WriteLine("Created Blog: " + blogNumber);
+            }
+
+
         }
     }
 }
