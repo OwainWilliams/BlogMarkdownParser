@@ -75,28 +75,39 @@ namespace HTMLParser
             using (var xmlReader = XmlReader.Create(url, new XmlReaderSettings() { Async = true }))
             {
                 var feedReader = new RssFeedReader(xmlReader);
-
-                while (await feedReader.Read())
+             
+                try
                 {
-                    switch (feedReader.ElementType)
+                    while (await feedReader.Read())
                     {
-                        
-                     
+                        switch (feedReader.ElementType)
+                        {
 
-                        // Read Item
-                        case SyndicationElementType.Item:
-                            ISyndicationItem item = await feedReader.ReadItem();
-                          
-                            if(item.Id !=null)
-                            {
-                                links.Add(item.Id);
-                            }
-                            
-                                
-                            break;
 
+
+                            // Read Item
+                            case SyndicationElementType.Item:
+                                ISyndicationItem item = await feedReader.ReadItem();
+
+                                if (item != null)
+                                {
+                                    links.Add(item.Id);
+                                }
+
+
+                                break;
+
+                        }
                     }
+
                 }
+                catch(ArgumentOutOfRangeException outOfRange)
+                {
+                    Console.WriteLine("Error: {0}", outOfRange.Message);
+                    Console.ReadLine();
+                }
+                
+              
 
                
             }
