@@ -20,8 +20,7 @@ namespace HTMLParser
                  
             // Get list of urls from an RSS feed.
             List<string> listOfLinks =  ReadRssFeedAsync();
-            
-
+           
             HttpClient client = new HttpClient();
             HtmlDocument pageDocument = new HtmlDocument();
            
@@ -34,60 +33,61 @@ namespace HTMLParser
                 SmartHrefHandling = true // remove markdown output for links where appropriate
             };
 
+            // Used to make the markdown file have a unique name.
             int id = 0;
-            // WIP.
+            Console.WriteLine("Started.....");
             foreach (var link in listOfLinks)
             {
-
                 id++;
-            // GetAsync will be the Link returned from the RSS feed.
+                Console.Write("\r Importing {0} of {1} - ", id, listOfLinks.Count());
+               
+           
             var converter = new ReverseMarkdown.Converter(config);
             var response = await client.GetAsync(link);
             var pageContents = await response.Content.ReadAsStringAsync();
-
-
             pageDocument.LoadHtml(pageContents);
 
+            // Use XPath to find the div with an Id='Content'
             var blogPostContent = pageDocument.DocumentNode.SelectSingleNode("(//div[contains(@id,'content')])").OuterHtml;
 
+            string blogPostMarkdown = converter.Convert(blogPostContent);
 
-            string html = blogPostContent;
-            string blogPostMarkdown = converter.Convert(html);
+            
+            // Output to the console. 
+            // Console.WriteLine(blogPostMarkdown);
 
 
-            //Instead of outputting to the console. Save as Markdown file. 
-            Console.WriteLine(blogPostMarkdown);
-
-                
+            // Create Markdown file, pass the markdown and id
 
             CreateMarkDownFile(blogPostMarkdown, id);
-
 
             }
             // TODO:
             // Once all files are saved, git push them to a private repo. 
             //
+
+            Console.WriteLine();
+            Console.WriteLine("Finished....Press ENTER to exit.");
+            Console.ReadLine();
         }
 
         public static List<string> ReadRssFeedAsync()
         {
             List<string> links = new List<string>();
 
+            // This url could be read in from the console I guess.
             var feedUrl = "https://owain.codes/blog/rss/";
-           
-
             var readerTask = FeedReader.ReadAsync(feedUrl);
            
-
+            // Get the link from the RSS feed, remove trailing edges and remove any mess e.g. new lines
+            // Add it to a list.
             foreach (var item in readerTask.Result.Items)
             {
-                Console.WriteLine(item.Link);
+                
+               // Console.WriteLine(item.Link);
                 var cleanedUpLink = item.Link.Trim().Replace(@"\t|\n|\r", "");
-
                 links.Add(cleanedUpLink);
             }
-
-
 
             return links;
         }
@@ -96,12 +96,14 @@ namespace HTMLParser
         public static void CreateMarkDownFile(string blog, int blogNumber)
         {
             string path = @"c:\temp\markdown\blog"+blogNumber+".md";
+
+           
+            // Only creates a new file if file doesn't already exist
             if(!File.Exists(path))
             {
                 File.AppendAllText(path, blog);
-                Console.WriteLine("Created Blog: " + blogNumber);
+                
             }
-
 
         }
     }
