@@ -17,13 +17,15 @@ namespace HTMLParser
     {
         async static Task Main(string[] args)
         {
-                 
+            // Used to make the markdown file have a unique name.
+            int id = 0;
+
             // Get list of urls from an RSS feed.
-            List<string> listOfLinks =  ReadRssFeedAsync();
-           
+            List<string> listOfLinks = GetRssFeedAsync();
+
             HttpClient client = new HttpClient();
-            HtmlDocument pageDocument = new HtmlDocument();
-           
+            HtmlDocument pageHTML = new HtmlDocument();
+
             // Configure how to handle the HTML and how to parse it.
             var config = new ReverseMarkdown.Config
             {
@@ -33,33 +35,37 @@ namespace HTMLParser
                 SmartHrefHandling = true // remove markdown output for links where appropriate
             };
 
-            // Used to make the markdown file have a unique name.
-            int id = 0;
+
+
             Console.WriteLine("Started.....");
+
+
+
+
             foreach (var link in listOfLinks)
             {
                 id++;
                 Console.Write("\r Importing {0} of {1} - ", id, listOfLinks.Count());
-               
-           
-            var converter = new ReverseMarkdown.Converter(config);
-            var response = await client.GetAsync(link);
-            var pageContents = await response.Content.ReadAsStringAsync();
-            pageDocument.LoadHtml(pageContents);
-
-            // Use XPath to find the div with an Id='Content'
-            var blogPostContent = pageDocument.DocumentNode.SelectSingleNode("(//div[contains(@id,'content')])").OuterHtml;
-
-            string blogPostMarkdown = converter.Convert(blogPostContent);
-
-            
-            // Output to the console. 
-            // Console.WriteLine(blogPostMarkdown);
 
 
-            // Create Markdown file, pass the markdown and id
+                var converter = new ReverseMarkdown.Converter(config);
+                var response = await client.GetAsync(link);
+                var pageContents = await response.Content.ReadAsStringAsync();
+                pageHTML.LoadHtml(pageContents);
 
-            CreateMarkDownFile(blogPostMarkdown, id);
+                // Use XPath to find the div with an Id='Content'
+                var blogPostContent = pageHTML.DocumentNode.SelectSingleNode("(//div[contains(@id,'content')])").OuterHtml;
+
+                string blogPostMarkdown = converter.Convert(blogPostContent);
+
+
+                // Output to the console. 
+                // Console.WriteLine(blogPostMarkdown);
+
+
+                // Create Markdown file, pass the markdown and id
+
+                CreateMarkDownFile(blogPostMarkdown, id);
 
             }
             // TODO:
@@ -71,20 +77,20 @@ namespace HTMLParser
             Console.ReadLine();
         }
 
-        public static List<string> ReadRssFeedAsync()
+        public static List<string> GetRssFeedAsync()
         {
             List<string> links = new List<string>();
 
             // This url could be read in from the console I guess.
             var feedUrl = "https://owain.codes/blog/rss/";
             var readerTask = FeedReader.ReadAsync(feedUrl);
-           
+
             // Get the link from the RSS feed, remove trailing edges and remove any mess e.g. new lines
             // Add it to a list.
             foreach (var item in readerTask.Result.Items)
             {
-                
-               // Console.WriteLine(item.Link);
+
+                // Console.WriteLine(item.Link);
                 var cleanedUpLink = item.Link.Trim().Replace(@"\t|\n|\r", "");
                 links.Add(cleanedUpLink);
             }
@@ -92,17 +98,16 @@ namespace HTMLParser
             return links;
         }
 
-
         public static void CreateMarkDownFile(string blog, int blogNumber)
         {
-            string path = @"c:\temp\markdown\blog"+blogNumber+".md";
+            string path = @"c:\temp\markdown\blog" + blogNumber + ".md";
 
-           
+
             // Only creates a new file if file doesn't already exist
-            if(!File.Exists(path))
+            if (!File.Exists(path))
             {
                 File.AppendAllText(path, blog);
-                
+
             }
 
         }
