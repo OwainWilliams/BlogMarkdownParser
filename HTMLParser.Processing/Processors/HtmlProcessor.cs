@@ -36,7 +36,7 @@ namespace HTMLParser.Processing.Processors
             {
                 var link = listOfLinks[i-1];
                 //TODO: replace with a logger so not specific to a console app
-                Console.Write($"\rn Importing {i} of {listOfLinks.Count} - ");
+                Console.Write($"\rImporting {i} of {listOfLinks.Count} - ");
                 
                 var converter = new ReverseMarkdown.Converter(MdConfig);
                 var response = await client.GetAsync(link);
