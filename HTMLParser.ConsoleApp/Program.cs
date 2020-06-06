@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using HTMLParser.Processing.Processors;
-using System;
 
 namespace HTMLParser.ConsoleApp
 {
