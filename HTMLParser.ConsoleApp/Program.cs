@@ -17,7 +17,7 @@ namespace HTMLParser.ConsoleApp
                 .AddCommandLine(args)
                 .Build();
 
-            var rssFeedUrl = _configuration.GetValue<string>("RssFeedUrlKey");
+            var rssFeedUrl = _configuration.GetValue<string>("RssFeedUrl");
             var localExportPath = _configuration.GetValue<string>("LocalExportPath");
 
             // Get list of urls from an RSS feed.
