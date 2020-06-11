@@ -50,6 +50,11 @@ namespace HTMLParser.Processing.Processors
 
 
                 string blogPostMarkdown = converter.Convert(blogPostContent);
+
+                //Trim Url to get filename
+
+
+
                 // Create Markdown file, pass the markdown and id
                 this.CreateMarkDownFile(blogPostMarkdown, i);
 
@@ -60,6 +65,8 @@ namespace HTMLParser.Processing.Processors
         
         private void CreateMarkDownFile(string blog, int blogNumber)
         {
+
+
             string path = $@"{this.BlogPath}blog{blogNumber}.md";
             // Only creates a new file if file doesn't already exist
             if (!File.Exists(path))
@@ -86,6 +93,13 @@ namespace HTMLParser.Processing.Processors
                 //}
                 //i++;
             }
+        }
+
+        public string GetFilename(string blogUrl)
+        {
+            string removeTrailingSlash = blogUrl.TrimEnd('/');
+            string fileName = removeTrailingSlash.Substring(removeTrailingSlash.LastIndexOf("/") + 1);
+            return fileName;
         }
     }
 }
