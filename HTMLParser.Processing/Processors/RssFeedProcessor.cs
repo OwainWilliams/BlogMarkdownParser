@@ -23,11 +23,22 @@ namespace HTMLParser.Processing.Processors
             // Add it to a list.
             foreach (var item in readerTask.Items)
             {
-                var cleanedUpLink = item.Link.Trim().Replace(@"\t|\n|\r", "");
-                links.Add(cleanedUpLink);
+                string link = item.Link.ToString();
+                
+                links.Add(CleanupLink(link));
             }
 
             return links;
         }
+
+        public string CleanupLink(string item)
+        {
+
+            var cleanedUpLink = item.Trim().Replace(@"\t|\n|\r", "");
+
+            return cleanedUpLink;
+        }
     }
+
+   
 }

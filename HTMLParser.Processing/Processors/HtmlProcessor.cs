@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
@@ -45,11 +46,15 @@ namespace HTMLParser.Processing.Processors
 
                 // Use XPath to find the div with an Id='Content'
                 var blogPostContent = pageHTML.DocumentNode.SelectSingleNode("(//div[contains(@id,'content')])").OuterHtml;
+                
+
 
                 string blogPostMarkdown = converter.Convert(blogPostContent);
-
                 // Create Markdown file, pass the markdown and id
                 this.CreateMarkDownFile(blogPostMarkdown, i);
+
+              
+                this.GetAllImageUrls(blogPostContent);
             }
         }
         
@@ -59,6 +64,28 @@ namespace HTMLParser.Processing.Processors
             // Only creates a new file if file doesn't already exist
             if (!File.Exists(path))
                 File.AppendAllText(path, blog);
+        }
+
+        private void GetAllImageUrls(string blog)
+        {
+            HtmlAgilityPack.HtmlDocument document = new HtmlDocument();
+            List<string> imageLinks = new List<string>();
+            document.LoadHtml(blog);
+
+            int i = 0;
+
+            foreach (HtmlNode link in document.DocumentNode.SelectNodes("//img"))
+            {
+                imageLinks.Add(link.GetAttributeValue("src", ""));
+                //string filePath = @"C:\temp\markdown\";
+                //string downloadLink = @"https://owain.codes/"+imageLinks[i];
+
+                //using (var imgClient = new WebClient())
+                //{
+                //    imgClient.DownloadFile(downloadLink, filePath+"image"+i);
+                //}
+                //i++;
+            }
         }
     }
 }
