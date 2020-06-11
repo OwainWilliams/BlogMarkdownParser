@@ -52,22 +52,22 @@ namespace HTMLParser.Processing.Processors
                 string blogPostMarkdown = converter.Convert(blogPostContent);
 
                 //Trim Url to get filename
+                string filename = this.GetFilename(link);
 
 
-
-                // Create Markdown file, pass the markdown and id
-                this.CreateMarkDownFile(blogPostMarkdown, i);
+                // Create Markdown file, pass the markdown, filename and id
+                this.CreateMarkDownFile(blogPostMarkdown, filename, i);
 
               
-                this.GetAllImageUrls(blogPostContent);
+            //    this.GetAllImageUrls(blogPostContent);
             }
         }
         
-        private void CreateMarkDownFile(string blog, int blogNumber)
+        private void CreateMarkDownFile(string blog, string filename, int blogNumber)
         {
 
 
-            string path = $@"{this.BlogPath}blog{blogNumber}.md";
+            string path = $@"{this.BlogPath}{filename}.md";
             // Only creates a new file if file doesn't already exist
             if (!File.Exists(path))
                 File.AppendAllText(path, blog);
