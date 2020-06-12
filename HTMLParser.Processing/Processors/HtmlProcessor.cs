@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 
+
 namespace HTMLParser.Processing.Processors
 {
     public class HtmlProcessor
@@ -15,7 +16,11 @@ namespace HTMLParser.Processing.Processors
         public string folderDirectory;
 
         private HttpClient client;
+        private WebClient webClient;
         private HtmlDocument pageHTML;
+
+
+
         private static readonly ReverseMarkdown.Config MdConfig = new ReverseMarkdown.Config
         {
             UnknownTags = ReverseMarkdown.Config.UnknownTagsOption.Bypass, // Include the unknown tag completely in the result (default as well)
@@ -25,11 +30,14 @@ namespace HTMLParser.Processing.Processors
         };
 
         private string BlogPath { get; set; }
+        private string Domain { get; set; }
 
-        public HtmlProcessor(string blogPath)
+        public HtmlProcessor(string blogPath, string domain)
         {
             this.client = new HttpClient();
+            this.webClient = new WebClient();
             this.BlogPath = blogPath;
+            this.Domain = domain;
         }
 
         public async Task ProcessLinks(List<string> listOfLinks)
@@ -37,7 +45,7 @@ namespace HTMLParser.Processing.Processors
             this.pageHTML = new HtmlDocument();
 
             // Configure how to handle the HTML and how to parse it.
-            for (var i = 1; i <= listOfLinks.Count; i+= 2)
+            for (var i = 1; i <= listOfLinks.Count; i += 2)
             {
                 var link = listOfLinks[i - 1];
                 // TODO: replace with a logger so not specific to a console app
@@ -47,7 +55,7 @@ namespace HTMLParser.Processing.Processors
                 var response = await client.GetAsync(link);
                 var pageContents = await response.Content.ReadAsStringAsync();
                 pageHTML.LoadHtml(pageContents);
-                
+
                 // Use XPath to find the div with an Id='Content'
                 var blogPostContent = pageHTML.DocumentNode.SelectSingleNode("(//div[contains(@id,'content')])").OuterHtml;
 
@@ -104,7 +112,7 @@ namespace HTMLParser.Processing.Processors
 
         private void GetAllImagesFromBlog(string blog, string folderDirectory)
         {
-            string imageFile;
+
             HtmlDocument document = new HtmlDocument();
             List<string> imageLinks = new List<string>();
             document.LoadHtml(blog);
@@ -120,18 +128,24 @@ namespace HTMLParser.Processing.Processors
                     // TODO: Need to find a way to only download internal images e.g. not external websites https / http
                     imageLinks.Add(link.GetAttributeValue("src", ""));
                     string imgFilePath = imageLinks[i].ToString();
-                    string imgFileName = GetFilename(imgFilePath);
-     
-                    WebClient client = new WebClient();
 
-                    // TODO: Get rid of hardcoded domain and use config file.
-                    Uri uri = new Uri("https://owain.codes" + imgFilePath);
-                    client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressCallback);
-                    var task = client.DownloadFileTaskAsync(uri, folderDirectory + "\\" + imgFileName);
+                    // Ignore any files that are outwith local
+                    if (imgFilePath.Contains("http"))
+                    {
+                        continue;
+                    }
+
+                    string imageFileName = GetFilename(imgFilePath);
+                    string imageFilePathWithoutCrop = GetFilePathWithoutCrops(imgFilePath);
+                    
+
+                    Uri uri = new Uri(this.Domain + imageFilePathWithoutCrop);
+
+                    webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressCallback);
+
+                  
+                    var task = webClient.DownloadFileTaskAsync(uri, folderDirectory + "\\" + imageFileName);
                     task.Wait();
-
-
-
 
                     Console.WriteLine("Download complete");
 
@@ -146,26 +160,36 @@ namespace HTMLParser.Processing.Processors
             string fileName = removeTrailingSlash.Substring(removeTrailingSlash.LastIndexOf("/") + 1);
             if (fileName.Contains("?"))
             {
-               fileName = fileName.Substring(0, fileName.IndexOf("?"));
+                fileName = fileName.Substring(0, fileName.IndexOf("?"));
             }
-            
+
 
             return fileName;
         }
 
+        public string GetFilePathWithoutCrops(string imageFilePath)
+        {
+            if (imageFilePath.Contains("?"))
+            {
+                imageFilePath = imageFilePath.Substring(0, imageFilePath.IndexOf("?"));
+            }
+            return imageFilePath;
+        }
 
         private static void DownloadProgressCallback(object sender, DownloadProgressChangedEventArgs e)
         {
 
+       
+
             // Displays the operation identifier, and the transfer progress.
-            Console.WriteLine("{0}    downloaded {1} of {2} bytes. {3} % complete...",
+            Console.WriteLine("{0}    downloaded {1} of {2} Mb. {3} % complete...",
                 ((TaskCompletionSource<object>)e.UserState).Task.AsyncState,
-                e.BytesReceived,
-                e.TotalBytesToReceive,
+                (e.BytesReceived / 1024d / 1024d).ToString("0.00"),
+                (e.TotalBytesToReceive / 1024d / 1024d).ToString("0.00"),
                 e.ProgressPercentage);
         }
 
 
-      
+
     }
 }

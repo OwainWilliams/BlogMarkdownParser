@@ -60,14 +60,37 @@ namespace HTMLParserTests
         {
             // Arrange
             string url = "https://owain.codes/something/";
+            string domain = "https://www.owain.codes/";
             string expected = "something";
 
             // Act
-            HtmlProcessor test = new HtmlProcessor(url);
+            HtmlProcessor test = new HtmlProcessor(url, domain);
 
 
             // Assert
             string actual = test.GetFilename(url);
+            Assert.AreEqual(expected, actual);
+            TestContext.WriteLine(actual);
+        }
+
+
+
+        [TestMethod()]
+        public void GetFilePathWithoutCropsTest()
+        {
+
+            // Arrange
+            string url = "https://owain.codes/something/";
+            string domain = "https://www.owain.codes/";
+            string imageFilePath = "/media/1172/gitimage-large.jpg?anchor=center&mode=crop&width=1200&height=600&rnd=132356887020000000";
+            string expected = "/media/1172/gitimage-large.jpg";
+
+            // Act
+            HtmlProcessor test = new HtmlProcessor(url, domain);
+
+
+            // Assert
+            string actual = test.GetFilePathWithoutCrops(imageFilePath);
             Assert.AreEqual(expected, actual);
             TestContext.WriteLine(actual);
         }

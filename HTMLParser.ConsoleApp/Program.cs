@@ -25,7 +25,7 @@ namespace HTMLParser.ConsoleApp
             // Get list of urls from an RSS feed.
             List<string> listOfLinks = await new RssFeedProcessor(rssFeedUrl).GetFeedLinksAsync();
             Console.WriteLine("Started.....");
-            await new HtmlProcessor(localExportPath).ProcessLinks(listOfLinks);
+            await new HtmlProcessor(localExportPath, domain).ProcessLinks(listOfLinks);
 
             // TODO: Once all files are saved, git push them to a private repo. 
 
