@@ -1,12 +1,15 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CodeHollow.FeedReader;
+using ExtensionMethod;
 
 namespace HTMLParser.Processing.Processors
 {
     public class RssFeedProcessor
     {
         private readonly string FeedUrl;
+       
 
         public RssFeedProcessor(string feedUrl)
         {
@@ -15,8 +18,8 @@ namespace HTMLParser.Processing.Processors
         
         public async Task<List<string>> GetFeedLinksAsync()
         {
+
             List<string> links = new List<string>();
-            
             var readerTask = await FeedReader.ReadAsync(FeedUrl);
 
             // Get the link from the RSS feed, remove trailing edges and remove any mess e.g. new lines
@@ -24,12 +27,19 @@ namespace HTMLParser.Processing.Processors
             foreach (var item in readerTask.Items)
             {
                 string link = item.Link.ToString();
+                DateTime? pubDate = item.PublishingDate;
+                string publishedDate = pubDate.Value.ToString("dd-MM-yyyy");
+
+
+                links.AddMany(CleanupLink(link), publishedDate);
                 
-                links.Add(CleanupLink(link));
+                
             }
 
             return links;
         }
+
+       
 
         public string CleanupLink(string item)
         {
@@ -40,5 +50,7 @@ namespace HTMLParser.Processing.Processors
         }
     }
 
-   
+
+  
+
 }

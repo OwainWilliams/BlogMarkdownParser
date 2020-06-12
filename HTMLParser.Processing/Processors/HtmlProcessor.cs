@@ -37,17 +37,17 @@ namespace HTMLParser.Processing.Processors
             this.pageHTML = new HtmlDocument();
 
             // Configure how to handle the HTML and how to parse it.
-            for (var i = 1; i <= listOfLinks.Count; i++)
+            for (var i = 1; i <= listOfLinks.Count; i+= 2)
             {
                 var link = listOfLinks[i - 1];
                 // TODO: replace with a logger so not specific to a console app
-                Console.Write($"\rImporting {i} of {listOfLinks.Count} - ");
+                var date = listOfLinks[i];
 
                 var converter = new ReverseMarkdown.Converter(MdConfig);
                 var response = await client.GetAsync(link);
                 var pageContents = await response.Content.ReadAsStringAsync();
                 pageHTML.LoadHtml(pageContents);
-
+                
                 // Use XPath to find the div with an Id='Content'
                 var blogPostContent = pageHTML.DocumentNode.SelectSingleNode("(//div[contains(@id,'content')])").OuterHtml;
 
@@ -60,18 +60,18 @@ namespace HTMLParser.Processing.Processors
 
 
                 // Create Markdown file, pass the markdown, filename and id
-                this.CreateMarkDownFile(blogPostMarkdown, filename, i);
+                this.CreateMarkDownFile(blogPostMarkdown, filename, date);
 
                 // Get any images that are in the blog
                 this.GetAllImagesFromBlog(blogPostContent, folderDirectory);
             }
         }
 
-        private void CreateMarkDownFile(string blog, string filename, int blogNumber)
+        private void CreateMarkDownFile(string blog, string filename, string date)
         {
 
 
-            folderDirectory = $@"{this.BlogPath}{filename}";
+            folderDirectory = $@"{this.BlogPath}{date}-{filename}";
             string directoryAndFilename = folderDirectory + "\\" + filename + ".md";
 
             try
@@ -118,12 +118,13 @@ namespace HTMLParser.Processing.Processors
                 {
 
                     // TODO: Need to find a way to only download internal images e.g. not external websites https / http
-
                     imageLinks.Add(link.GetAttributeValue("src", ""));
                     string imgFilePath = imageLinks[i].ToString();
                     string imgFileName = GetFilename(imgFilePath);
      
                     WebClient client = new WebClient();
+
+                    // TODO: Get rid of hardcoded domain and use config file.
                     Uri uri = new Uri("https://owain.codes" + imgFilePath);
                     client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressCallback);
                     var task = client.DownloadFileTaskAsync(uri, folderDirectory + "\\" + imgFileName);
