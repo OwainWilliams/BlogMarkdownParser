@@ -1,8 +1,6 @@
 # HTML to Markdown Parser
 
-Point the console app at a RSS feed, then get a list of links. 
-Use the list of links to then scrape those pages with XPath to give you the main content. 
-Once you have the content, convert it to markdown.
-
-Update: 11/06/2020
-Now with some basic unit tests. 
+* An app that reads an RSS feed, gets a list of links from the feed and scrapes the HTML of the links in to Markdown format
+* Saves all the Markdown in to date stamped folders
+* Saves all images from within the main content of the blog in to the same folder as the Markdown
+* Has some Unit Tests and uses Serilog for logging
