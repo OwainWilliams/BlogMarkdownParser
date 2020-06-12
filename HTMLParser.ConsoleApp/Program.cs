@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HTMLParser.Processing.Processors;
 using Microsoft.Extensions.Configuration;
+using Serilog;
 
 namespace HTMLParser.ConsoleApp
 {
@@ -17,20 +18,33 @@ namespace HTMLParser.ConsoleApp
                 .AddCommandLine(args)
                 .Build();
 
+
             var rssFeedUrl = _configuration.GetValue<string>("RssFeedUrl");
             var localExportPath = _configuration.GetValue<string>("LocalExportPath");
             var domain = _configuration.GetValue<string>("RootDomain");
 
+            var logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(_configuration)
+                .CreateLogger();
+
+            //Log.Logger = new LoggerConfiguration()
+            //    .MinimumLevel.Debug()
+            //    .WriteTo.Console()
+            //    .WriteTo.File(localExportPath+"-log.txt", rollingInterval: RollingInterval.Day)
+            //    .CreateLogger();
+
+            logger.Information("Hello, world!");
+           
 
             // Get list of urls from an RSS feed.
             List<string> listOfLinks = await new RssFeedProcessor(rssFeedUrl).GetFeedLinksAsync();
-            Console.WriteLine("Started.....");
+            logger.Information("Hold on to your hats, we're going in!");
             await new HtmlProcessor(localExportPath, domain).ProcessLinks(listOfLinks);
 
             // TODO: Once all files are saved, git push them to a private repo. 
 
-            Console.WriteLine();
-            Console.WriteLine("Finished....Press ENTER to exit.");
+            logger.Information("That's all folks!");
+            
             Console.ReadLine();
         }
     }
