@@ -27,13 +27,6 @@ namespace HTMLParser.ConsoleApp
                 .ReadFrom.Configuration(_configuration)
                 .CreateLogger();
 
-            //Log.Logger = new LoggerConfiguration()
-            //    .MinimumLevel.Debug()
-            //    .WriteTo.Console()
-            //    .WriteTo.File(localExportPath+"-log.txt", rollingInterval: RollingInterval.Day)
-            //    .CreateLogger();
-
-            logger.Information("Hello, world!");
            
 
             // Get list of urls from an RSS feed.

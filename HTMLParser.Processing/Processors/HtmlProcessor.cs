@@ -22,6 +22,7 @@ namespace HTMLParser.Processing.Processors
 
 
 
+
         private static readonly ReverseMarkdown.Config MdConfig = new ReverseMarkdown.Config
         {
             UnknownTags = ReverseMarkdown.Config.UnknownTagsOption.Bypass, // Include the unknown tag completely in the result (default as well)
@@ -149,7 +150,7 @@ namespace HTMLParser.Processing.Processors
                     task.Wait();
 
                     Console.WriteLine("Download complete");
-
+                    
                     i++;
                 }
             }

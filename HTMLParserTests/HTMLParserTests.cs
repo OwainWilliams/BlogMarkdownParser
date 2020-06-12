@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using HTMLParser;
 using HTMLParser.Processing.Processors;
 
 
@@ -7,8 +6,6 @@ namespace HTMLParserTests
 {
     [TestClass]
     public class HTMLParserTests
-
-
     {
 
         // This allows me to output the actual results in to the Test Detail Summary.
