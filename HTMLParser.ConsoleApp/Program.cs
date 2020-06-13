@@ -31,12 +31,12 @@ namespace HTMLParser.ConsoleApp
 
             // Get list of urls from an RSS feed.
             List<string> listOfLinks = await new RssFeedProcessor(rssFeedUrl).GetFeedLinksAsync();
-            logger.Information("Hold on to your hats, we're going in!");
+            logger.Information("What are you trying to tell me? That I can dodge bullets?");
             await new HtmlProcessor(localExportPath, domain).ProcessLinks(listOfLinks);
 
             // TODO: Once all files are saved, git push them to a private repo. 
 
-            logger.Information("That's all folks!");
+            logger.Information("No, Neo. I'm trying to tell you that when you're ready, you won't have to.");
             
             Console.ReadLine();
         }
