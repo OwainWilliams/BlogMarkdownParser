@@ -115,6 +115,8 @@ namespace HTMLParser.Processing.Processors
         private void GetAllImagesFromBlog(string blog, string folderDirectory)
         {
 
+            // BUG: Need to find a way to handle 404 errors, currently this it breaking. 
+
             HtmlDocument document = new HtmlDocument();
             List<string> imageLinks = new List<string>();
             document.LoadHtml(blog);
@@ -126,8 +128,8 @@ namespace HTMLParser.Processing.Processors
             {
                 foreach (HtmlNode link in nodes)
                 {
-
-                    // TODO: Need to find a way to only download internal images e.g. not external websites https / http
+                   
+                   
                     imageLinks.Add(link.GetAttributeValue("src", ""));
                     string imgFilePath = imageLinks[i].ToString();
 
@@ -143,16 +145,33 @@ namespace HTMLParser.Processing.Processors
 
                     Uri uri = new Uri(this.Domain + imageFilePathWithoutCrop);
 
-                    webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressCallback);
+                   WebRequest request = WebRequest.Create(uri);
+                   HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                    if (response.StatusDescription == "OK")
+                    {
+                        Log.Information("Getting this file : " + uri);
+                        webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressCallback);
 
-                  
-                    var task = webClient.DownloadFileTaskAsync(uri, folderDirectory + "\\" + imageFileName);
-                    task.Wait();
+                        var task = webClient.DownloadFileTaskAsync(uri, folderDirectory + "\\" + imageFileName);
+                        task.Wait();
 
-                    Console.WriteLine("Download complete");
-                    
-                    i++;
+                        Log.Information("Download complete");
+                        Console.WriteLine("Download complete");
+                        i++;
+                        response.Close();
+                    }
+                    else
+                    {
+                        Log.Information("FILE NOT FOUND " + uri);
+                        i++;
+                        continue;
+                    }
+
+                   
+
+
                 }
+              
             }
         }
 
