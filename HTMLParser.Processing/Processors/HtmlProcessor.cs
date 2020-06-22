@@ -59,9 +59,11 @@ namespace HTMLParser.Processing.Processors
                 pageHTML.LoadHtml(pageContents);
 
                 // Use XPath to find the div with an Id='Content'
-                var blogPostContent = pageHTML.DocumentNode.SelectSingleNode("(//div[contains(@id,'content')])").OuterHtml;
+                //var blogPostContent = pageHTML.DocumentNode.SelectSingleNode("(//div[contains(@id,'content' and not (@class='featured-blogs'))]").OuterHtml;
 
+                var blogPostContent = pageHTML.DocumentNode.SelectSingleNode("(//*[@id='content' and not(@class='slick-track')])").OuterHtml;
 
+                
 
                 string blogPostMarkdown = converter.Convert(blogPostContent);
 
@@ -121,6 +123,7 @@ namespace HTMLParser.Processing.Processors
             List<string> imageLinks = new List<string>();
             document.LoadHtml(blog);
 
+
             HtmlNodeCollection nodes = document.DocumentNode.SelectNodes("//img");
 
             int i = 0;
@@ -144,11 +147,11 @@ namespace HTMLParser.Processing.Processors
                     
 
                     Uri uri = new Uri(this.Domain + imageFilePathWithoutCrop);
-
-                   WebRequest request = WebRequest.Create(uri);
-                   HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                    if (response.StatusDescription == "OK")
+                    try
                     {
+                        HttpWebRequest myHttpRequest = (HttpWebRequest)WebRequest.Create(uri);
+                        HttpWebResponse myHttpResponse = (HttpWebResponse)myHttpRequest.GetResponse();
+
                         Log.Information("Getting this file : " + uri);
                         webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressCallback);
 
@@ -158,15 +161,15 @@ namespace HTMLParser.Processing.Processors
                         Log.Information("Download complete");
                         Console.WriteLine("Download complete");
                         i++;
-                        response.Close();
+                        myHttpResponse.Close();
                     }
-                    else
+                    catch(WebException e)
                     {
                         Log.Information("FILE NOT FOUND " + uri);
+                        Log.Information("Something went wrong with " + e.Message);
                         i++;
                         continue;
                     }
-
                    
 
 
