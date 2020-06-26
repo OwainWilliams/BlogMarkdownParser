@@ -1,37 +1,39 @@
-﻿using System.Drawing;
-using System.IO;
-using ImageProcessor;
-using ImageProcessor.Imaging;
-using ImageProcessor.Imaging.Formats;
+﻿using System.IO;
+using System.Numerics;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 
 namespace HTMLParser.Processing.Processors
 {
     public class ImageProcessor
     {
-
-        public static void ResizedImage(Stream stream, int width, int height, ResizeMode resizeMode, ref string path)
+       public void ResizeImage(string filePath, string outputDirectory)
         {
+            System.IO.Directory.CreateDirectory(outputDirectory+"\\"+"resized");
 
-            ISupportedImageFormat format = new PngFormat();
-            format.Quality = 100;
-            path = path + "." + format.DefaultExtension;
-            Size size = new Size(width, height);
-
-            using (ImageFactory imageFactory = new ImageFactory())
+            Configuration.Default.ImageFormatsManager.SetEncoder(PngFormat.Instance, new PngEncoder()
             {
-                ResizeLayer resizeLayer = new ResizeLayer(size, resizeMode);
-                
+                CompressionLevel = PngCompressionLevel.BestCompression
+            });
 
-                imageFactory.Load(stream)
-                    .Resize(resizeLayer)
-                    .BackgroundColor(Color.White)
-                    .Format(format)
-                    .Save(path);
+            using (Image image = Image.Load(outputDirectory+"\\"+filePath))
+            {
+                // Add options for different file sizes, larger files need bigger reductions.
+                // TODO: Setup different size options
+                if(image.Width > 1025)
+                {
+                    image.Mutate(x => x
+                     .Resize(image.Width / 2, image.Height / 2));
+
+                }
+
+
+
+                string fileName = Path.GetFileNameWithoutExtension(filePath);
+                image.Save(outputDirectory+"\\resized\\"+fileName+".png"); // Automatic encoder selected based on extension.
             }
-
-            path = MyCustomUtility.RelativeFromAbsolutePath(path);
         }
-
-
     }
 }

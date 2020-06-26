@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Serilog;
-
+using SixLabors.ImageSharp;
 
 namespace HTMLParser.Processing.Processors
 {
@@ -61,7 +61,7 @@ namespace HTMLParser.Processing.Processors
                 // Use XPath to find the div with an Id='Content'
                 //var blogPostContent = pageHTML.DocumentNode.SelectSingleNode("(//div[contains(@id,'content' and not (@class='featured-blogs'))]").OuterHtml;
 
-                var blogPostContent = pageHTML.DocumentNode.SelectSingleNode("(//*[@id='content' and not(@class='slick-track')])").OuterHtml;
+                var blogPostContent = pageHTML.DocumentNode.SelectSingleNode("(//*[@id='content' and not(@class='slick-track')])").InnerHtml;
 
                 
 
@@ -162,6 +162,11 @@ namespace HTMLParser.Processing.Processors
                         Console.WriteLine("Download complete");
                         i++;
                         myHttpResponse.Close();
+
+                        ImageProcessor processImage = new ImageProcessor();
+                        processImage.ResizeImage(imageFileName, folderDirectory);
+
+
                     }
                     catch(WebException e)
                     {
