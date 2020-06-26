@@ -13,10 +13,10 @@ namespace HTMLParser.Processing.Processors
         {
             System.IO.Directory.CreateDirectory(outputDirectory+"\\"+"resized");
 
-            Configuration.Default.ImageFormatsManager.SetEncoder(PngFormat.Instance, new PngEncoder()
-            {
-                CompressionLevel = PngCompressionLevel.BestCompression
-            });
+            //Configuration.Default.ImageFormatsManager.SetEncoder(PngFormat.Instance, new PngEncoder()
+            //{
+            //    CompressionLevel = PngCompressionLevel.BestCompression
+            //});
 
             using (Image image = Image.Load(outputDirectory+"\\"+filePath))
             {
@@ -32,7 +32,7 @@ namespace HTMLParser.Processing.Processors
 
 
                 string fileName = Path.GetFileNameWithoutExtension(filePath);
-                image.Save(outputDirectory+"\\resized\\"+fileName+".png"); // Automatic encoder selected based on extension.
+                image.Save(outputDirectory+"\\resized\\"+fileName+".jpg"); // Automatic encoder selected based on extension.
             }
         }
     }
