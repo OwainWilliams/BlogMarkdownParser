@@ -22,12 +22,10 @@ namespace HTMLParser.Processing.Processors
             {
                 // Add options for different file sizes, larger files need bigger reductions.
                 // TODO: Setup different size options
-                if(image.Width > 1025)
-                {
-                    image.Mutate(x => x
-                     .Resize(image.Width / 2, image.Height / 2));
 
-                }
+               
+                    image.Mutate(x => x
+                     .Resize(300, 0));
 
 
 
