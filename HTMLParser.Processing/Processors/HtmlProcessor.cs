@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using HtmlAgilityPack;
 using Serilog;
 using SixLabors.ImageSharp;
@@ -50,41 +51,56 @@ namespace HTMLParser.Processing.Processors
             for (var i = 1; i <= listOfLinks.Count; i += 2)
             {
                 var link = listOfLinks[i - 1];
-                // TODO: replace with a logger so not specific to a console app
                 var date = listOfLinks[i];
 
-                var converter = new ReverseMarkdown.Converter(MdConfig);
+                var markDownConverter = new ReverseMarkdown.Converter(MdConfig);
                 var response = await client.GetAsync(link);
                 var pageContents = await response.Content.ReadAsStringAsync();
                 pageHTML.LoadHtml(pageContents);
+
 
                 // Use XPath to find the div with an Id='Content'
                 //var blogPostContent = pageHTML.DocumentNode.SelectSingleNode("(//div[contains(@id,'content' and not (@class='featured-blogs'))]").OuterHtml;
 
                 var blogPostContent = pageHTML.DocumentNode.SelectSingleNode("(//*[@id='content' and not(@class='slick-track')])").InnerHtml;
+                var blogTitle = pageHTML.DocumentNode.SelectSingleNode("/html/head/title").InnerHtml;
+                var metaDescription = pageHTML.DocumentNode.SelectSingleNode("/html/head/meta[9]").GetAttributeValue("content", "");
 
-                
 
-                string blogPostMarkdown = converter.Convert(blogPostContent);
+
+                string blogPostMarkdown = markDownConverter.Convert(blogPostContent);
+
 
                 //Trim Url to get filename
                 string filename = this.GetFilename(link);
 
 
                 // Create Markdown file, pass the markdown, filename and id
-                this.CreateMarkDownFile(blogPostMarkdown, filename, date);
+                this.CreateMarkDownFile(blogPostMarkdown, blogTitle, metaDescription, filename, date);
 
                 // Get any images that are in the blog
                 this.GetAllImagesFromBlog(blogPostContent, folderDirectory);
             }
         }
 
-        private void CreateMarkDownFile(string blog, string filename, string date)
+
+
+
+        private void CreateMarkDownFile(string blog, string blogTitle, string metaDescription, string filename, string date)
         {
 
+            // Add metadata to the top of each blog article. 
+            string article = "---  \n meta.Title: " + blogTitle + "  \n"
+                + "meta.Description: " + metaDescription + "  \n"
+                + "---  \n";
+
+            article += blog;
 
             folderDirectory = $@"{this.BlogPath}{date}-{filename}";
             string directoryAndFilename = folderDirectory + "\\" + filename + ".md";
+
+
+
 
             try
             {
@@ -94,7 +110,8 @@ namespace HTMLParser.Processing.Processors
                     // If the file doesn't already exist, create it
                     if (!File.Exists(filename))
                     {
-                        File.AppendAllText(directoryAndFilename, blog);
+                        File.AppendAllText(directoryAndFilename, article);
+                        Log.Information("Blog: " + filename + " exists, so skipping");
                     }
                 }
                 else
@@ -108,7 +125,7 @@ namespace HTMLParser.Processing.Processors
             }
             catch (Exception ex)
             {
-                Console.WriteLine("An error occurred: " + ex);
+                Log.Error("An error occurred: " + ex);
             }
             finally { }
 
@@ -131,8 +148,8 @@ namespace HTMLParser.Processing.Processors
             {
                 foreach (HtmlNode link in nodes)
                 {
-                   
-                   
+
+
                     imageLinks.Add(link.GetAttributeValue("src", ""));
                     string imgFilePath = imageLinks[i].ToString();
 
@@ -144,7 +161,7 @@ namespace HTMLParser.Processing.Processors
 
                     string imageFileName = GetFilename(imgFilePath);
                     string imageFilePathWithoutCrop = GetFilePathWithoutCrops(imgFilePath);
-                    
+
 
                     Uri uri = new Uri(this.Domain + imageFilePathWithoutCrop);
                     try
@@ -155,31 +172,43 @@ namespace HTMLParser.Processing.Processors
                         Log.Information("Getting this file : " + uri);
                         webClient.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadProgressCallback);
 
-                        var task = webClient.DownloadFileTaskAsync(uri, folderDirectory + "\\" + imageFileName);
-                        task.Wait();
+                        if (!File.Exists(folderDirectory + "\\" + imageFileName))
+                        {
+                            var task = webClient.DownloadFileTaskAsync(uri, folderDirectory + "\\" + imageFileName);
+                            task.Wait();
 
-                        Log.Information("Download complete");
-                        Console.WriteLine("Download complete");
+                            Log.Information("Download complete");
+
+
+                            ImageProcessor processImage = new ImageProcessor();
+                            processImage.ResizeImage(imageFileName, folderDirectory);
+
+                            Log.Information("Resized image");
+
+                        }
+                        else
+                        {
+                            Log.Information("Skipping file as it already exists");
+                        }
+
+
                         i++;
                         myHttpResponse.Close();
 
-                        ImageProcessor processImage = new ImageProcessor();
-                        processImage.ResizeImage(imageFileName, folderDirectory);
-
 
                     }
-                    catch(WebException e)
+                    catch (WebException e)
                     {
                         Log.Information("FILE NOT FOUND " + uri);
                         Log.Information("Something went wrong with " + e.Message);
                         i++;
                         continue;
                     }
-                   
+
 
 
                 }
-              
+
             }
         }
 
@@ -208,7 +237,7 @@ namespace HTMLParser.Processing.Processors
         private static void DownloadProgressCallback(object sender, DownloadProgressChangedEventArgs e)
         {
 
-       
+
 
             // Displays the operation identifier, and the transfer progress.
             Console.WriteLine("{0}    downloaded {1} of {2} Mb. {3} % complete...",

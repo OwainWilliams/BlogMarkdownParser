@@ -37,8 +37,8 @@ namespace HTMLParser.ConsoleApp
             // TODO: Once all files are saved, git push them to a private repo. 
 
             Log.Information("No, Neo. I'm trying to tell you that when you're ready, you won't have to.");
-            
-            Console.ReadLine();
+            Console.WriteLine("All done - press any key to exit.");
+            Console.ReadKey();
         }
     }
 }
