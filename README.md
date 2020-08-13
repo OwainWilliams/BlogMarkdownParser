@@ -1,7 +1,28 @@
-# HTML to Markdown Parser
+<h1 align="center">Welcome to BlogMarkdownParser 👋</h1>
+<p>
+  <img alt="Version" src="https://img.shields.io/badge/version-0.1-blue.svg?cacheSeconds=2592000" />
+  <a href="https://twitter.com/scottishcoder" target="_blank">
+    <img alt="Twitter: scottishcoder" src="https://img.shields.io/twitter/follow/scottishcoder.svg?style=social" />
+  </a>
+</p>
 
-* An app that reads an RSS feed, gets a list of links from the feed and scrapes the HTML of the links in to Markdown format
-* Saves all the Markdown in to date stamped folders
-* Saves all images from within the main content of the blog in to the same folder as the Markdown
-* Resizes all images in to a resize folder using [ImageSharp](https://github.com/SixLabors/ImageSharp)
-* Has some Unit Tests and uses Serilog for logging
+> Read RSS feed and convert linked pages to Markdown files
+
+## Author
+
+👤 **Owain Williams**
+
+* Website: http://www.owain.codes
+* Twitter: [@scottishcoder](https://twitter.com/scottishcoder)
+* Github: [@owainwilliams](https://github.com/owainwilliams)
+
+## 🤝 Contributing
+
+Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](github.com/owainwilliams/blogmarkdownparser/issues). 
+
+## Show your support
+
+Give a ⭐️ if this project helped you!
+
+***
+_This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_
